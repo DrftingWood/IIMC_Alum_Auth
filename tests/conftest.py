@@ -67,6 +67,29 @@ async def session(_migrations: None) -> AsyncIterator[AsyncSession]:
     await engine.dispose()
 
 
+@pytest_asyncio.fixture(autouse=True)
+async def _reset_shared_engine() -> AsyncIterator[None]:
+    """Dispose the module-level engine after each test.
+
+    pytest-asyncio (auto mode) creates a fresh event loop per test. The
+    `src.shared.db` module caches a singleton engine on first use; once the
+    test's loop closes, asyncpg connections bound to that loop become invalid
+    and the next test fails with "Event loop is closed" during pool checkout.
+    Disposing after each test forces the next handler call to build a fresh
+    engine on the new loop.
+    """
+    yield
+    import contextlib
+
+    from src.shared import db as _db
+
+    if _db._engine is not None:
+        with contextlib.suppress(Exception):
+            await _db._engine.dispose()
+        _db._engine = None
+        _db._session_factory = None
+
+
 @pytest_asyncio.fixture
 async def committed_session(_migrations: None) -> AsyncIterator[AsyncSession]:
     """A session that commits. Used for e2e tests where handlers need to see data
