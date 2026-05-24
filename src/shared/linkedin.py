@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import secrets
 from datetime import UTC, datetime, timedelta
+from typing import Any
 from urllib.parse import urlencode
 
 import httpx
@@ -70,7 +71,7 @@ async def exchange_code_for_token(
     client_secret: str,
     redirect_uri: str,
     code: str,
-) -> dict[str, str]:
+) -> dict[str, Any]:
     """Exchange an authorization code for an access token + id_token."""
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.post(
@@ -85,15 +86,17 @@ async def exchange_code_for_token(
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
         resp.raise_for_status()
-        return resp.json()
+        data: dict[str, Any] = resp.json()
+        return data
 
 
-async def fetch_userinfo(*, access_token: str) -> dict[str, str]:
-    """Fetch the OIDC userinfo claims (name, email, sub, picture)."""
+async def fetch_userinfo(*, access_token: str) -> dict[str, Any]:
+    """Fetch the OIDC userinfo claims (name, email, sub, picture, email_verified)."""
     async with httpx.AsyncClient(timeout=10.0) as client:
         resp = await client.get(
             USERINFO_ENDPOINT,
             headers={"Authorization": f"Bearer {access_token}"},
         )
         resp.raise_for_status()
-        return resp.json()
+        data: dict[str, Any] = resp.json()
+        return data
