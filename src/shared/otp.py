@@ -1,6 +1,6 @@
 import secrets
 from datetime import UTC, datetime, timedelta
-from enum import Enum
+from enum import StrEnum
 
 import bcrypt
 from sqlalchemy import select, update
@@ -33,7 +33,7 @@ def verify_code(code: str, hashed: str) -> bool:
         return False
 
 
-class OtpResult(str, Enum):
+class OtpResult(StrEnum):
     OK = "ok"
     WRONG = "wrong"
     EXPIRED = "expired"
