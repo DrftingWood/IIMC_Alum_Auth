@@ -17,6 +17,11 @@ class Settings(BaseSettings):
     brevo_api_key: str
     brevo_from_email: str
     brevo_from_name: str
+    linkedin_client_id: str = ""
+    linkedin_client_secret: str = ""
+    linkedin_redirect_uri: str = ""
+    public_base_url: str = ""
+    http_port: int = 8080
     email_dev_mode: bool = False
     log_level: str = "INFO"
 
