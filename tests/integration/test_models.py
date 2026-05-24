@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.shared.models import (
     Alumni,
+    LinkedInAuthSession,
     Member,
     OtpCode,
 )
@@ -20,7 +21,7 @@ async def test_database_is_up(session: AsyncSession) -> None:
 @pytest.mark.asyncio
 async def test_alumni_table_exists(session: AsyncSession) -> None:
     result = await session.execute(
-        text("SELECT count(*) FROM information_schema.tables " "WHERE table_name = 'alumni'")
+        text("SELECT count(*) FROM information_schema.tables WHERE table_name = 'alumni'")
     )
     assert result.scalar_one() == 1
 
@@ -88,3 +89,19 @@ async def test_otp_code_round_trip(session: AsyncSession) -> None:
     await session.flush()
     assert o.id is not None
     assert o.attempts == 0
+
+
+@pytest.mark.asyncio
+async def test_linkedin_auth_session_round_trip(session: AsyncSession) -> None:
+    expires = datetime.now(UTC) + timedelta(minutes=15)
+    s = LinkedInAuthSession(
+        state="abc-state-token",
+        telegram_user_id=555,
+        expires_at=expires,
+    )
+    session.add(s)
+    await session.flush()
+    fetched = await session.get(LinkedInAuthSession, "abc-state-token")
+    assert fetched is not None
+    assert fetched.telegram_user_id == 555
+    assert fetched.consumed_at is None
