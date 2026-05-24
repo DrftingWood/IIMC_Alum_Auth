@@ -1,0 +1,19 @@
+line-length = 100
+target-version = "py312"
+
+[lint]
+select = [
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # bugbear
+    "UP",   # pyupgrade
+    "ASYNC",
+    "S",    # bandit (security)
+    "T20",  # no print
+    "SIM",  # simplify
+]
+ignore = ["S101"]  # allow assert in tests
+
+[lint.per-file-ignores]
+"tests/**" = ["S105", "S106", "S311"]  # test passwords, hardcoded secrets, weak rng OK in tests
