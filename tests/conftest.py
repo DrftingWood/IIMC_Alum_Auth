@@ -103,8 +103,9 @@ async def committed_session(_migrations: None) -> AsyncIterator[AsyncSession]:
             # Wipe all data so the next test starts clean
             await s.execute(
                 text(
-                    "TRUNCATE TABLE invite_links, audit_log, members, "
-                    "otp_codes, verification_cases, alumni RESTART IDENTITY CASCADE"
+                    "TRUNCATE TABLE invite_links, audit_log, members, otp_codes, "
+                    "verification_cases, linkedin_auth_sessions, alumni "
+                    "RESTART IDENTITY CASCADE"
                 )
             )
             await s.commit()
